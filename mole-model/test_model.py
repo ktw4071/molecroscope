@@ -32,10 +32,10 @@ if __name__ == '__main__':
         X_test, y_test = mimg.load_test_images('data/benign/images',
                                                 'data/malign/images')
 
-        model = load_model('model/vgg16_weights.h5')
+        model = load_model('benigns.h5')
         y_pred_proba = model.predict(X_test)
         y_pred = (y_pred_proba >0.5)*1
         print(classification_report(y_test,y_pred))
         plot_roc(y_test, y_pred_proba, title=sys.argv[1]+sys.argv[2])
     else:
-        print('use python src/test_model.py models/model.h5 title')
+        print('no source or model found')

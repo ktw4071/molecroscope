@@ -157,29 +157,32 @@ def save_image(image, filename):
     cv2.imwrite(filename, image)
     cv2.destroyAllWindows()
 
-t0 = time()
 
-FRAME_A = process_image(cv2.imread('mole1.jpg'))
+def main():
+    t0 = time()
 
-FRAME_B = process_image(cv2.imread('mole.jpg'))
+    FRAME_A = process_image(cv2.imread('mole1.jpg'))
 
-key_a, key_b = get_mole(FRAME_A, FRAME_B, 11)
+    FRAME_B = process_image(cv2.imread('mole.jpg'))
 
-fixed_img = fix_alignment(FRAME_A, key_a, key_b)
+    key_a, key_b = get_mole(FRAME_A, FRAME_B, 11)
 
-save_image(fixed_img, "output1.jpg")
-save_image(FRAME_B, "output2.jpg")
+    fixed_img = fix_alignment(FRAME_A, key_a, key_b)
 
-#cv2.imshow('tet', fixed_img)
+    save_image(fixed_img, "output1.jpg")
+    save_image(FRAME_B, "output2.jpg")
 
-#Set waitKey
-#cv2.waitKey()
+    #cv2.imshow('tet', fixed_img)
+
+    #Set waitKey
+    #cv2.waitKey()
 
 
-#cv2.imshow('tet50', FRAME_B)
+    #cv2.imshow('tet50', FRAME_B)
 
-#Set waitKey
-#cv2.waitKey()
+    #Set waitKey
+    #cv2.waitKey()
 
-print(get_difference(fixed_img, FRAME_B))
-print("TIME: %.5f" % (time() - t0))
+    print("TIME: %.5f" % (time() - t0))
+
+    return get_difference(fixed_img, FRAME_B)

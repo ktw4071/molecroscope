@@ -1,0 +1,8 @@
+TRAINER_PACKAGE_PATH="/home/irene_chen/molecroscope/mole-model/trainer"
+MAIN_TRAINER_MODULE="trainer.task"
+PACKAGE_STAGING_PATH="gs://your/chosen/staging/path"
+
+now=$(date +"%Y%m%d_%H%M%S")
+JOB_NAME="mole_training_$now"
+JOB_DIR="gs://"
+REGION="us-east1"

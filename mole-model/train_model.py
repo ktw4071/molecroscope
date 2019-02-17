@@ -25,10 +25,10 @@ def plot_roc(y_test, y_score, title='ROC Curve'):
 
 
 if __name__ == '__main__':
-    train_data_dir = 'data_scaled/'
-    validation_data_dir = 'data_scaled_validation/'
-    nb_train_samples = 1763
-    nb_validation_samples = 194
+    train_data_dir = 'data/'
+    validation_data_dir = 'data_validation/'
+    nb_train_samples = 1600
+    nb_validation_samples = 82
     epochs = 100
     batch_size = 16
 

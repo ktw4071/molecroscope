@@ -91,11 +91,11 @@ class MoleImages():
 
 
 if __name__ == '__main__':
-    # benign = MoleImages('data/malignant/*.jpg')
-    # ben_images = benign.resize_bulk()
-    # print('Shape of benign images: ', ben_images.shape)
-    # benign.save_h5(ben_images, 'benigns.h5', 'benign')
-    benign = MoleImages()
+    benign = MoleImages('data/malignant/*.jpg')
+    ben_images = benign.resize_bulk()
+    print('Shape of benign images: ', ben_images.shape)
+    benign.save_h5(ben_images, 'benigns.h5', 'benign')
+    # benign = MoleImages()
     X = benign.load_h5('benigns.h5','benign')
 
 

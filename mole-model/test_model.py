@@ -3,7 +3,7 @@ from keras.models import load_model
 from load_images import MoleImages
 from sklearn.metrics import classification_report
 from sklearn.metrics import roc_curve, auc
-
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import sys
 
@@ -27,15 +27,15 @@ def plot_roc(y_test, y_score, title='ROC Curve'):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        mimg = MoleImages()
-        X_test, y_test = mimg.load_test_images('data/benign/images',
-                                                'data/malign/images')
-
-        model = load_model('benigns.h5')
-        y_pred_proba = model.predict(X_test)
-        y_pred = (y_pred_proba >0.5)*1
-        print(classification_report(y_test,y_pred))
-        plot_roc(y_test, y_pred_proba, title=sys.argv[1]+sys.argv[2])
-    else:
-        print('no source or model found')
+    mimg = MoleImages()
+    test = sys.argv[1]
+    # X_test, y_test = mimg.load_test_images('data/benign/images',
+    #                                            'data/malign/images')
+    img = mpimg.imread(test)
+    model = load_model('benigns.h5')
+    model.load_weights(model)
+    pred_proba = model.predict(img)
+    # y_pred = (y_pred_proba >0.5)*1
+    print(pred_proba)
+    # plot_roc(y_test, y_pred_proba, title=sys.argv[1]+sys.argv[2])
+    

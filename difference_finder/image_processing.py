@@ -10,11 +10,14 @@ def enhance_lighting(image):
     height = image.shape[0]
     length = image.shape[1]
 
+    cnt_height = height >> 1
+    cnt_length = length >> 1
+
     def center_dist(x, y):
 
-        # Return Euclidean distance of (x, y) to center
+        # Return Euclidean distance of point to the center
 
-        return int(pow(pow(x - height / 2, 2) + pow(y - length / 2, 2), 0.5))
+        return int(pow(pow(x - cnt_height, 2) + pow(y - cnt_length, 2), 0.5))
 
     POWER = 1.3
 
@@ -22,7 +25,7 @@ def enhance_lighting(image):
         for x in xrange(length):
             # 0 - Black
             # 255 - White
-            image[y, x] = min(255, pow(max(0, image[y, x] - 60 + center_dist(y, x)), POWER))
+            image[y, x] = min(255, int(pow(max(0, image[y, x] - 60 + center_dist(y, x)), POWER)))
 
     return image
 
@@ -53,7 +56,7 @@ def get_mole(img1, img2, points = 4):
     key_a = []
     key_b = []
 
-    for mat in matches[:points if points == 4 else len(matches)]:
+    for mat in matches[:points if points < 20 else len(matches)]:
         key_a.append(kp1[mat.queryIdx].pt)
         key_b.append(kp2[mat.trainIdx].pt)
 
@@ -76,6 +79,7 @@ def process_image(image):
 
     # Isolate Mole
     frame = enhance_lighting(frame)
+
 
     # Convert to simpler Black or White Image
     frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, width >> 1 | 1, 2)
@@ -123,27 +127,16 @@ def get_difference(img_A, img_B):
 
         return 1 - float(common_area) / total_area
 
-    elif mode == "C":
+    elif mode == "K":
 
-        contour_A, _ = cv2.findContours(img_A.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        contour_B, _ = cv2.findContours(img_B.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        key_a, key_b = get_mole(img_A, img_B)
 
-        total = min(len(contour_A), len(contour_B))
-        common = 0
+        total_differences = 0
 
-        contour_A = sorted(i.tolist()[0] for i in contour_A[0])
+        for (x1, y1), (x2, y2) in zip(key_a, key_b):
+            total_differences += pow(pow(x1 - x2, 2) + pow(y1 - y2, 2), 0.5)
 
-        contour_B = sorted(i.tolist()[0] for i in contour_B[0])
-
-        for i, j in zip(contour_A, contour_B):
-            if i == j:
-                common += 1
-        return common
-
-    elif mode =
-
-
-
+        return min(100, total_differences / len(key_a))
 
 # ------------------------------------------------------------- #
 
@@ -154,9 +147,10 @@ def draw_points(img, points = None):
 
     points = np.int0(points)
     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    side_length = 4
     for i in points:
         x, y = i.ravel()
-        cv2.circle(img, (x, y), 3, (0, 20, 255), -1)
+        cv2.rectangle(img, (x - side_length, y - side_length), (x + side_length, y + side_length), (0, 20, 255), 2)
     return img
 
 def save_image(image, filename):
@@ -165,10 +159,11 @@ def save_image(image, filename):
 
 t0 = time()
 
-FRAME_A = process_image(cv2.imread('mole.jpg'))
-FRAME_B = process_image(cv2.imread('mole1.jpg'))
+FRAME_A = process_image(cv2.imread('mole1.jpg'))
 
-key_a, key_b = get_mole(FRAME_A, FRAME_B)
+FRAME_B = process_image(cv2.imread('mole.jpg'))
+
+key_a, key_b = get_mole(FRAME_A, FRAME_B, 11)
 
 fixed_img = fix_alignment(FRAME_A, key_a, key_b)
 

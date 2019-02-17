@@ -1,0 +1,49 @@
+{
+  "_id": "54e755f6bae47850e86cdff4",
+  "_modelType": "image",
+  "created": "2015-02-20T15:42:46.715000+00:00",
+  "creator": {
+    "_id": "5436c6e7bae4780a676c8f93",
+    "name": "User ZUPS"
+  },
+  "dataset": {
+    "_accessLevel": 0,
+    "_id": "5a2ecc5e1165975c945942a4",
+    "description": "Moles and melanomas.\nBiopsy-confirmed melanocytic lesions. Both malignant and benign lesions are included.",
+    "license": "CC-0",
+    "name": "UDA-2",
+    "updated": "2015-03-06T14:54:30.984000+00:00"
+  },
+  "meta": {
+    "acquisition": {
+      "image_type": "dermoscopic",
+      "pixelsX": 3872,
+      "pixelsY": 2592
+    },
+    "clinical": {
+      "age_approx": 40,
+      "anatom_site_general": "posterior torso",
+      "benign_malignant": "benign",
+      "diagnosis": "nevus",
+      "diagnosis_confirm_type": "histopathology",
+      "melanocytic": true,
+      "sex": "male"
+    },
+    "unstructured": {
+      "Location": "right lateral back",
+      "diagnosis": "201241318 Combined Congenital Nevus with features of Spitz Nevus",
+      "diagnosis_short": "congenital nevus"
+    },
+    "unstructuredExif": {}
+  },
+  "name": "ISIC_0001109",
+  "notes": {
+    "reviewed": {
+      "accepted": true,
+      "time": "2015-02-20T15:48:02.406000+00:00",
+      "userId": "5450e996bae47865794e4d0d"
+    },
+    "tags": []
+  },
+  "updated": "2015-12-03T18:05:41.703000+00:00"
+}

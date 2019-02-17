@@ -23,6 +23,11 @@ def predict(filename):
         print(result)
 
 
+    print (path_to_file)
+    print (y_pred)
+    print(y_pred.shape)
+
+
 if __name__ == '__main__':
 	global model
     model = load_model('models/BM_VA_VGG_FULL_DA.hdf5')

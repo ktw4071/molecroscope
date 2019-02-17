@@ -1,0 +1,49 @@
+{
+  "_id": "54e755f8bae47850e86ce008",
+  "_modelType": "image",
+  "created": "2015-02-20T15:42:48.369000+00:00",
+  "creator": {
+    "_id": "5436c6e7bae4780a676c8f93",
+    "name": "User ZUPS"
+  },
+  "dataset": {
+    "_accessLevel": 0,
+    "_id": "5a2ecc5e1165975c945942a4",
+    "description": "Moles and melanomas.\nBiopsy-confirmed melanocytic lesions. Both malignant and benign lesions are included.",
+    "license": "CC-0",
+    "name": "UDA-2",
+    "updated": "2015-03-06T14:54:30.984000+00:00"
+  },
+  "meta": {
+    "acquisition": {
+      "image_type": "dermoscopic",
+      "pixelsX": 3008,
+      "pixelsY": 2000
+    },
+    "clinical": {
+      "age_approx": 80,
+      "anatom_site_general": "head/neck",
+      "benign_malignant": "benign",
+      "diagnosis": "seborrheic keratosis",
+      "diagnosis_confirm_type": "histopathology",
+      "melanocytic": false,
+      "sex": "male"
+    },
+    "unstructured": {
+      "Location": "left cheek",
+      "diagnosis": "Seborrheic keratosis",
+      "diagnosis_short": "Seborrheic keratosis"
+    },
+    "unstructuredExif": {}
+  },
+  "name": "ISIC_0001113",
+  "notes": {
+    "reviewed": {
+      "accepted": true,
+      "time": "2015-02-20T15:47:42.079000+00:00",
+      "userId": "5450e996bae47865794e4d0d"
+    },
+    "tags": []
+  },
+  "updated": "2015-12-03T18:05:41.569000+00:00"
+}

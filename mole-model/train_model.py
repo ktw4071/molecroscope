@@ -27,10 +27,10 @@ def plot_roc(y_test, y_score, title='ROC Curve'):
 if __name__ == '__main__':
     train_data_dir = 'data/'
     validation_data_dir = 'data_validation/'
-    nb_train_samples = 1600
+    nb_train_samples = 1000
     nb_validation_samples = 82
-    epochs = 100
-    batch_size = 16
+    epochs = 10
+    batch_size = 10
 
     #mimg = MoleImages()
     #X_test, y_test = mimg.load_test_images('data_scaled_test/benign',
@@ -57,7 +57,9 @@ if __name__ == '__main__':
     model = mycnn.fit_generator(train_generator,validation_generator,
         nb_train_samples, nb_validation_samples, epochs, batch_size)
 
-    model.save(sys.argv[1])
+    model.save('model.h5')
+    model.save_weights('model_weights.h5')
+
     #y_pred_proba = model.predict(X_test)
     #y_pred = (y_pred_proba >0.5)*1
     #print(classification_report(y_test,y_pred))

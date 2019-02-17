@@ -56,6 +56,7 @@ class MoleImages():
         img = resize(img, self.size, mode='constant') * 255
         if img.shape[2] == 4:
             img = img[:,:,0:3]
+            print (img.shape)
         return img.reshape(1, self.size[0], self.size[1], 3)
 
     def save_h5(self, X, filename, dataset):

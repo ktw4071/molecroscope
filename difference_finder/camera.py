@@ -27,87 +27,54 @@ def align_images(img1, img2):
 
     return gray_img1
 
-def normalize_lighting(image):
-
-    if len(image.shape) < 3:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-
-    image[:, :, 0] = cv2.equalizeHist(image[:, :, 0])
-
-    return cv2.cvtColor(image, cv2.COLOR_YUV2BGR)
-
-def get_blobs(image):
+def enhance_lighting(image):
 
     if len(image.shape) > 2:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    contours, _ = cv2.findContours(image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    for c in contours:
-        # draw the contour and show it
-        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-    return image
 
-#cap = cv2.VideoCapture(0)
-#print(cap.isOpened()) # False
+    height = image.shape[0]
+    length = image.shape[1]
+
+    def center_dist(x, y, mode = "Manhattan"):
+
+        if mode == "Euclid":
+
+            # Return Euclidean distance of (x, y) to center
+
+            return int(pow(pow(x - height / 2, 2) + pow(y - length / 2, 2), 0.5)) / 80
+
+        elif mode == "Manhattan":
+
+            # Return Manhattan distance of (x, y) to center
+
+            return (abs(x - height / 2) + abs(y - length / 2)) / 2
+
+    POWER = 1.3
+
+    for y in xrange(height):
+        for x in xrange(length):
+            # 0 - Black
+            # 255 - White
+            image[y, x] = min(255, pow(max(0, image[y, x] - 90 + center_dist(y, x)), POWER))
+
+    return image
 
 # Capture frame-by-frame
 #ret, frame = cap.read()
+
+FRAME = cv2.imread('mole.jpg')
+
+# Resize Image
+
+width = FRAME.shape[1]
+length = FRAME.shape[0]
+scale = 0.1
+frame = cv2.resize(FRAME, (int(width * scale), int(length * scale)))
+
+frame = enhance_lighting(frame)
+
 while 1:
-    frame = cv2.imread('mole.jpg')
-    #frame1 = cv2.imread('mole1.jpg')
 
-    # Our operations on the frame come here
-    kernel = np.array([
-        [-1, -1, -1],
-        [-1, 9, -1],
-        [-1, -1, -1]])
-
-    # Resize Image
-    width = frame.shape[1]
-    length = frame.shape[0]
-    scale = 0.1
-    frame = cv2.resize(frame, (int(width * scale), int(length * scale)))
-
-    # Contrast Filter
-    contrast = 70
-    f = 131*(contrast + 127)/(127*(131-contrast))
-    alpha_c = f
-    gamma_c = 127*(1-f)
-
-    frame = cv2.addWeighted(frame, alpha_c, frame, 0, gamma_c)
-
-    # Img Operations
-
-    # Method 1
-    #frame = cv2.filter2D(frame, -1, kernel)
-
-    # Method 2
-    #frame = cv2.addWeighted(frame, 4, cv2.blur(frame, (30, 30)), -4, 128)
-
-
-    # Display the resulting frame
-
-    #frame = align_images(frame, frame1)
-    array_alpha = np.array([1.5])
-    array_beta = np.array([25.0])
-
-    # add a beta value to every pixel
-    #frame = cv2.add(frame, array_beta, frame)
-
-    # multiply every pixel value by alpha
-    frame = cv2.multiply(cv2.multiply(frame, array_alpha, frame), array_alpha, frame)
-
-    #frame = align_images(frame, frame1)
-
-    # Light Normalize
-    #frame = normalize_lighting(frame)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, frame.shape[0] | 1, 1)
-    ret, frame = cv2.threshold(frame, 150, 255, cv2.THRESH_BINARY)
-
-    #ret, frame = cv2.threshold(frame, 255, 255, cv2.THRESH_TRUNC)
-    #frame = normalize_lighting(frame)
     cv2.imshow('Sharpened Version', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):

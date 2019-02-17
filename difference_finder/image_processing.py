@@ -2,14 +2,6 @@ from time import time
 import numpy as np
 import cv2
 
-def get_skew(mole_A, mole_B):
-
-    """
-    Given two images (Assuming they're of the same object), re-align the two pictures
-    """
-
-    return cv2.findHomography(np.float32(mole_A), np.float32(mole_B))
-
 def enhance_lighting(image):
 
     if len(image.shape) > 2:
@@ -35,35 +27,47 @@ def enhance_lighting(image):
     return image
 
 
-def get_mole(image, points = 4):
+def get_mole(img1, img2, points = 4):
 
     """
     Gets key points describing the mole
     """
 
-    contours, _ = cv2.findContours(image.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    detector = cv2.FeatureDetector_create("SURF")
+    descriptor = cv2.DescriptorExtractor_create("BRIEF")
+    matcher = cv2.DescriptorMatcher_create("BruteForce-Hamming")
 
-    mole = max(contours, key = lambda c: cv2.contourArea(c)).tolist()
+    # detect keypoints
+    kp1 = detector.detect(img1)
+    kp2 = detector.detect(img2)
 
-    # Horizontal
+    # descriptors
+    k1, d1 = descriptor.compute(img1, kp1)
+    k2, d2 = descriptor.compute(img2, kp2)
 
-    left = max(mole, key = lambda point: point[0][0])
-    right = min(mole, key = lambda point: point[0][0])
+    # match the keypoints
+    matches = matcher.match(d1, d2)
 
-    # Vertical
+    matches.sort(key = lambda i: i.distance)
 
-    top = max(mole, key = lambda point: point[0][1])
-    bottom = min(mole, key = lambda point: point[0][1])
+    key_a = []
+    key_b = []
 
-    return left, right, top, bottom
+    for mat in matches[:points if points == 4 else len(matches)]:
+        key_a.append(kp1[mat.queryIdx].pt)
+        key_b.append(kp2[mat.trainIdx].pt)
+
+    return key_a, key_b
 
 def process_image(image):
 
     # Resize Image
-    width = image.shape[1]
-    length = image.shape[0]
-    scale = 0.1
-    frame = cv2.resize(image, (int(width * scale), int(length * scale)))
+
+    scale = 10
+    frame = cv2.resize(image, (image.shape[1] / scale, image.shape[0] / scale))
+
+    width = frame.shape[1]
+    length = frame.shape[0]
 
     # Normalize Light Conditions
     FRAME = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV)
@@ -76,45 +80,78 @@ def process_image(image):
     # Convert to simpler Black or White Image
     frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, width >> 1 | 1, 2)
 
-    return frame
+    # Fill in all the visual artifacts (Smaller spots)
 
-def fix_alignment(img_A, img_B):
-    # Grab Mole Contour
+    contours, _ = cv2.findContours(frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    mole_points_A = get_mole(img_A)
-
-    mole_points_B = get_mole(img_B)
-
-    perspective, status = get_skew(mole_points_A, mole_points_B)
-
-    #img_A = draw_points(img_A, mole_points_A)
-    #img_B = draw_points(img_B, mole_points_B)
-
-    fixed_img = cv2.warpPerspective(img_A, perspective, (img_A.shape[1], img_A.shape[0]))
-
-    return fixed_img
-
-def get_difference(img_A, img_B):
-
-    length = img_A.shape[0]
-    width  = img_A.shape[1]
-
-    common_area = 0
-    total_area  = 0
+    mole = max(contours, key = lambda c: cv2.contourArea(c))
 
     for x in xrange(length):
         for y in xrange(width):
-            if img_B[x, y] == 255:
-                total_area += 1
-                if img_A[x, y] == 255:
-                    common_area += 1
+            if frame[x, y] == 255:
+                if cv2.pointPolygonTest(mole, (y, x), False) == -1:
+                    frame[x, y] = 0
 
-    return 1 - float(common_area) / total_area
+    return frame
+
+def fix_alignment(img, key_src, key_dest):
+
+    # Correct image with detected keypoints
+
+    perspective, status = cv2.findHomography(np.float32(key_src), np.float32(key_dest))
+
+    return cv2.warpPerspective(img, perspective, (img.shape[1], img.shape[0]))
+
+def get_difference(img_A, img_B):
+
+    mode = "K"
+
+    if mode == "O":
+
+        length = img_A.shape[0]
+        width  = img_A.shape[1]
+
+        common_area = 0
+        total_area  = 0
+
+        for x in xrange(length):
+            for y in xrange(width):
+                if img_B[x, y] == 255:
+                    total_area += 1
+                    if img_A[x, y] == 255:
+                        common_area += 1
+
+        return 1 - float(common_area) / total_area
+
+    elif mode == "C":
+
+        contour_A, _ = cv2.findContours(img_A.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contour_B, _ = cv2.findContours(img_B.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+        total = min(len(contour_A), len(contour_B))
+        common = 0
+
+        contour_A = sorted(i.tolist()[0] for i in contour_A[0])
+
+        contour_B = sorted(i.tolist()[0] for i in contour_B[0])
+
+        for i, j in zip(contour_A, contour_B):
+            if i == j:
+                common += 1
+        return common
+
+    elif mode =
+
+
 
 
 # ------------------------------------------------------------- #
 
-def draw_points(img, points):
+def draw_points(img, points = None):
+
+    if not points:
+        points = get_mole(img)
+
     points = np.int0(points)
     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     for i in points:
@@ -131,10 +168,23 @@ t0 = time()
 FRAME_A = process_image(cv2.imread('mole.jpg'))
 FRAME_B = process_image(cv2.imread('mole1.jpg'))
 
-fixed_img = fix_alignment(FRAME_A, FRAME_B)
+key_a, key_b = get_mole(FRAME_A, FRAME_B)
+
+fixed_img = fix_alignment(FRAME_A, key_a, key_b)
 
 save_image(fixed_img, "output1.jpg")
 save_image(FRAME_B, "output2.jpg")
 
-print get_difference(fixed_img, FRAME_B)
-print "TIME: %.5f" % (time() - t0)
+#cv2.imshow('tet', fixed_img)
+
+#Set waitKey
+#cv2.waitKey()
+
+
+#cv2.imshow('tet50', FRAME_B)
+
+#Set waitKey
+#cv2.waitKey()
+
+print(get_difference(fixed_img, FRAME_B))
+print("TIME: %.5f" % (time() - t0))

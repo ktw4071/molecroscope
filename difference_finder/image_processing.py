@@ -18,19 +18,11 @@ def enhance_lighting(image):
     height = image.shape[0]
     length = image.shape[1]
 
-    def center_dist(x, y, mode = "Euclidean"):
+    def center_dist(x, y):
 
-        if mode == "Euclidean":
+        # Return Euclidean distance of (x, y) to center
 
-            # Return Euclidean distance of (x, y) to center
-
-            return int(pow(pow(x - height / 2, 2) + pow(y - length / 2, 2), 0.5))
-
-        elif mode == "Manhattan":
-
-            # Return Manhattan distance of (x, y) to center
-
-            return (abs(x - height / 2) + abs(y - length / 2)) / 4
+        return int(pow(pow(x - height / 2, 2) + pow(y - length / 2, 2), 0.5))
 
     POWER = 1.3
 
@@ -102,22 +94,22 @@ def fix_alignment(img_A, img_B):
 
     return fixed_img
 
-def get_difference(img_A, img_B, mode = "Overlap"):
+def get_difference(img_A, img_B):
 
-    # Overlap
-    if mode == "Overlap":
-        length = img_A.shape[0]
-        width  = img_A.shape[1]
+    length = img_A.shape[0]
+    width  = img_A.shape[1]
 
-        common_area = 0
+    common_area = 0
+    total_area  = 0
 
-        for x in xrange(length):
-            for y in xrange(width):
-                if img_A[x, y] == img_B[x, y] == 255:
+    for x in xrange(length):
+        for y in xrange(width):
+            if img_B[x, y] == 255:
+                total_area += 1
+                if img_A[x, y] == 255:
                     common_area += 1
 
-        return common_area
-
+    return 1 - float(common_area) / total_area
 
 
 # ------------------------------------------------------------- #
@@ -136,8 +128,8 @@ def save_image(image, filename):
 
 t0 = time()
 
-FRAME_A = process_image(cv2.imread('mole1.jpg'))
-FRAME_B = process_image(cv2.imread('mole.jpg'))
+FRAME_A = process_image(cv2.imread('mole.jpg'))
+FRAME_B = process_image(cv2.imread('mole1.jpg'))
 
 fixed_img = fix_alignment(FRAME_A, FRAME_B)
 
